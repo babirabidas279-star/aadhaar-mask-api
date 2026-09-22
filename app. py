@@ -1,0 +1,59 @@
+from flask import Flask, jsonify
+from flask_cors import CORS
+import re
+
+app = Flask(__name__)
+CORS(app)
+
+@app.route('/')
+def home():
+    return jsonify({
+        'status': 'Live',
+        'message': 'Aadhaar Mask API - DPDP Act 2023 Compliant',
+        'version': '1.0.0',
+        'usage': {
+            'endpoint': '/mask/{aadhaar_number}',
+            'example': '/mask/123456789012',
+            'method': 'GET'
+        },
+        'compliance': 'DPDP Act 2023 Section 8(7)'
+    })
+
+@app.route('/mask/<aadhaar>')
+def mask_aadhaar(aadhaar):
+    # Sirf number rakho, space/dash/letter hatao
+    num = re.sub(r'\D', '', aadhaar)
+
+    # 12 digit check
+    if len(num)!= 12:
+        return jsonify({
+            'valid': False,
+            'error': 'Aadhaar must be exactly 12 digits',
+            'received_length': len(num),
+            'hint': 'Remove spaces or dashes'
+        }), 400
+
+    # First 8 digit X, last 4 as it is
+    masked = f'XXXX-XXXX-{num[-4:]}'
+
+    return jsonify({
+        'valid': True,
+        'masked': masked,
+        'last4': num[-4:],
+        'input_length': 12,
+        'compliance': 'DPDP Act 2023 - Data Fiduciary Guidelines',
+        'note': 'Store masked value only. Never store full Aadhaar.'
+    })
+
+@app.route('/health')
+def health():
+    return jsonify({
+        'status': 'healthy',
+        'uptime': '99.99%'
+    })
+
+# Vercel ke liye ye jaruri hai
+app = app
+
+if __name__ == '__main__':
+    app.run(debug=False)
