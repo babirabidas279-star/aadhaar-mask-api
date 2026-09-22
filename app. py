@@ -25,7 +25,7 @@ def mask_aadhaar(aadhaar):
     num = re.sub(r'\D', '', aadhaar)
 
     # 12 digit check
-    if len(num)!= 12:
+    if len(num) != 12:
         return jsonify({
             'valid': False,
             'error': 'Aadhaar must be exactly 12 digits',
@@ -51,9 +51,6 @@ def health():
         'status': 'healthy',
         'uptime': '99.99%'
     })
-
-# Vercel ke liye ye jaruri hai
-app = app
 
 if __name__ == '__main__':
     app.run(debug=False)
